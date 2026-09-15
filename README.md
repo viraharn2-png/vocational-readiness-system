@@ -3,11 +3,14 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Curriculum](https://img.shields.io/badge/Curriculum-OVEC%202567-emerald)](https://www.vec.go.th)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Online-success)](https://viraharn2-png.github.io/vocational-readiness-system/)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fviraharn2-png%2Fvocational-readiness-system)
+[![Vercel Deployment](https://img.shields.io/badge/Vercel-Live%20Online-black?logo=vercel)](https://vocational-readiness-system.vercel.app)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Online-blue?logo=github)](https://viraharn2-png.github.io/vocational-readiness-system/)
 
-🌐 **ลิงก์ระบบออนไลน์พร้อมใช้งานจริง (Live Production):**
-👉 **[https://viraharn2-png.github.io/vocational-readiness-system/](https://viraharn2-png.github.io/vocational-readiness-system/)**
+🌐 **ลิงก์ระบบออนไลน์บน Vercel (Official Live URL):**
+👉 **[https://vocational-readiness-system.vercel.app](https://vocational-readiness-system.vercel.app)**
+
+🔗 **ลิงก์สำรอง (GitHub Pages):**
+👉 [https://viraharn2-png.github.io/vocational-readiness-system/](https://viraharn2-png.github.io/vocational-readiness-system/)
 
 ระบบประเมินความพร้อมสู่การทำงานและการฝึกประสบการณ์วิชาชีพ พัฒนาขึ้นตามแนวทางการจัดการเรียนรู้ฐานสมรรถนะ (Competency-Based Education) และกรอบคุณวุฒิอาชีวศึกษาแห่งชาติ พ.ศ. 2567 ของสำนักงานคณะกรรมการการอาชีวศึกษา (สอศ.) กระทรวงศึกษาธิการ
 
