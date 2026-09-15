@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบประเมินการเตรียมความพร้อมผู้เรียนอาชีวศึกษา ตามหลักสูตร ปวช./ปวส. พ.ศ. 2567 (V-WRS)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Chart.js CDN for Radar and Bar Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts & Custom Styles -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased">
+
+  <!-- TOP APP HEADER -->
+  <header class="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white shadow-lg no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-amber-400 font-bold text-2xl shadow-inner">
+            ⚡
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="bg-amber-500/20 text-amber-300 border border-amber-400/30 text-[11px] font-bold px-2 py-0.5 rounded-full tracking-wide uppercase">
+                หลักสูตร สอศ. พ.ศ. 2567
+              </span>
+              <span class="text-xs text-blue-200 hidden sm:inline">ระบบ V-WRS v1.0</span>
+            </div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white font-heading mt-0.5">
+              ระบบประเมินการเตรียมความพร้อมผู้เรียนอาชีวศึกษา
+            </h1>
+            <p class="text-xs text-blue-200">
+              Vocational Student Work Readiness Assessment System (ปวช. / ปวส. 2567)
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Action Bar -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="dropdown relative inline-block text-left">
+            <span class="text-xs text-blue-200 mr-1 hidden sm:inline">โหลดตัวอย่าง:</span>
+            <button id="loadSample1" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium text-white border border-white/20 transition-all">
+              ⚡ ปวช. ไฟฟ้า (ระดับ 4)
+            </button>
+            <button id="loadSample2" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium text-white border border-white/20 transition-all">
+              💻 ปวส. ไอที (ระดับ 3)
+            </button>
+            <button id="loadSample3" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium text-white border border-white/20 transition-all">
+              🔧 ปวช. ยนต์ (ระดับ 2)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STICKY STATUS & NAVIGATION BAR -->
+  <nav class="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-2.5">
+        
+        <!-- Tab Navigation Buttons -->
+        <div class="flex items-center space-x-1 sm:space-x-3 overflow-x-auto text-sm pb-1 sm:pb-0">
+          <button class="tab-btn active inline-flex items-center gap-2 px-3 py-2 border-b-2 border-blue-700 text-blue-700 font-semibold transition-all whitespace-nowrap" data-tab="assessment">
+            <span>📝</span> แบบประเมินสมรรถนะ 4 ด้าน
+          </button>
+          <button class="tab-btn inline-flex items-center gap-2 px-3 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all whitespace-nowrap" data-tab="dashboard">
+            <span>📊</span> แดชบอร์ด & Radar Chart
+          </button>
+          <button class="tab-btn inline-flex items-center gap-2 px-3 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all whitespace-nowrap" data-tab="gapAnalysis">
+            <span>🔍</span> วิเคราะห์ Gap & คอร์สเสริม
+          </button>
+          <button class="tab-btn inline-flex items-center gap-2 px-3 py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all whitespace-nowrap" data-tab="passport">
+            <span>🎓</span> ใบรับรองความพร้อม (A4 Passport)
+          </button>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="w-32 sm:w-44 bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+            <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-indigo-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+          <span id="progressText" class="text-xs font-semibold text-slate-600">0/16 (0%)</span>
+          <button id="printBtn" class="px-3 py-1.5 rounded-lg bg-blue-800 hover:bg-blue-900 text-white text-xs font-medium flex items-center gap-1.5 shadow-sm transition-all">
+            🖨️ <span class="hidden sm:inline">พิมพ์รายงาน / PDF</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- STUDENT / EVALUATION CONTEXT CARD (Collapsible & Responsive) -->
+    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 mb-6 no-print">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+          <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wide">
+            ข้อมูลผู้เรียนและบริบทการประเมิน (Vocational Candidate Profile)
+          </h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="resetBtn" class="text-xs text-rose-600 hover:text-rose-800 hover:underline">
+            ล้างข้อมูลเพื่อเริ่มใหม่
+          </button>
+          <span class="text-slate-300">|</span>
+          <button id="exportJsonBtn" class="text-xs text-blue-600 hover:text-blue-800 hover:underline">
+            ดาวน์โหลดไฟล์ JSON
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ชื่อ - นามสกุล ผู้เรียน</label>
+          <input type="text" id="fullName" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="เช่น นายสมชาย หมายมั่น" />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">รหัสประจำตัวนักเรียน/นักศึกษา</label>
+          <input type="text" id="studentId" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="เช่น 66201010001" />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ระดับหลักสูตร พ.ศ. 2567</label>
+          <select id="level" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium">
+            <option value="voc_cert">ระดับ ปวช. (คุณวุฒิระดับ 3)</option>
+            <option value="high_voc_cert">ระดับ ปวส. (คุณวุฒิระดับ 4)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ชั้นปี / สถานะการเตรียมความพร้อม</label>
+          <select id="gradeYear" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium">
+            <option value="ปวช. 3 (เตรียมฝึกงาน/จบการศึกษา)">ปวช. 3 (เตรียมฝึกงาน / จบการศึกษา)</option>
+            <option value="ปวส. 2 (เตรียมฝึกงาน/จบการศึกษา)">ปวส. 2 (เตรียมฝึกงาน / จบการศึกษา)</option>
+            <option value="ปวช. 2">ปวช. 2</option>
+            <option value="ปวส. 1">ปวส. 1</option>
+            <option value="ปวช. 1">ปวช. 1</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ประเภทวิชา</label>
+          <select id="departmentSelect" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"></select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">สาขาวิชา</label>
+          <select id="majorSelect" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"></select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">สถานศึกษา / วิทยาลัย</label>
+          <input type="text" id="college" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="วิทยาลัยเทคนิค..." />
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">บทบาทผู้ประเมิน</label>
+          <select id="evaluatorRole" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="student">ผู้เรียนประเมินตนเอง (Self-Assessment)</option>
+            <option value="teacher">ครูผู้สอน / ครูนิเทศก์ (Teacher/Mentor)</option>
+            <option value="enterprise">สถานประกอบการ / ครูฝึก (Enterprise Trainer)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 1: แบบประเมินสมรรถนะ 4 ด้าน ==================== -->
+    <section id="assessmentTab" class="tab-pane active">
+      <div class="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 no-print">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800 font-heading">
+            แบบประเมินสมรรถนะการเตรียมความพร้อม (16 ตัวชี้วัดมาตรฐาน 2567)
+          </h2>
+          <p class="text-xs text-slate-500">
+            เกณฑ์การให้คะแนน: 1 = ปรับปรุงเร่งด่วน | 2 = พื้นฐาน/พอใช้ | 3 = ปานกลางตามเกณฑ์ | 4 = ดี/ชำนาญ | 5 = ยอดเยี่ยม/เป็นแบบอย่าง
+          </p>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="font-medium text-slate-500">ระบบบันทึกอัตโนมัติลงในเครื่อง (Auto-Saved)</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+        </div>
+      </div>
+
+      <!-- Dynamic Assessment Questions injected by js/app.js -->
+      <div id="assessmentContainer"></div>
+    </section>
+
+    <!-- ==================== TAB 2: แดชบอร์ด & RADAR CHART ==================== -->
+    <section id="dashboardTab" class="tab-pane">
+      
+      <!-- Top Readiness Score Card -->
+      <div class="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl mb-8 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+          
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span id="tierBadgeDisplay" class="px-3 py-1 rounded-full text-xs font-bold border">
+                กำลังคำนวณผล...
+              </span>
+              <span class="text-xs text-blue-200">ตามกรอบคุณวุฒิอาชีวศึกษา 2567</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold font-heading">
+              ผลสรุปความพร้อมสู่การทำงาน (Work Readiness Level)
+            </h3>
+            <p id="tierDescDisplay" class="text-sm text-blue-100 max-w-2xl mt-2 leading-relaxed">
+              -
+            </p>
+            <div class="mt-4 p-3.5 rounded-xl bg-white/10 border border-white/15 text-xs text-blue-200 max-w-2xl">
+              <strong class="text-amber-300">💡 ข้อเสนอแนะเชิงกลยุทธ์:</strong> <span id="tierRecDisplay">-</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4 bg-white/10 p-5 rounded-2xl border border-white/15 backdrop-blur shrink-0 text-center justify-center">
+            <div>
+              <div class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white font-mono" id="overallScoreDisplay">
+                0.00
+              </div>
+              <div class="text-[11px] text-blue-200 uppercase tracking-wider mt-1">คะแนนเฉลี่ย (เต็ม 5)</div>
+            </div>
+            <div class="w-px h-12 bg-white/20"></div>
+            <div>
+              <div class="text-4xl sm:text-5xl font-extrabold tracking-tight text-amber-400 font-mono" id="overallPctDisplay">
+                0%
+              </div>
+              <div class="text-[11px] text-blue-200 uppercase tracking-wider mt-1">คะแนนรวมร้อยละ</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Charts Section: Radar Chart + Dimension Breakdown Bar Chart -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        <!-- Radar Chart Card -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col items-center">
+          <div class="w-full flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+            <h4 class="text-base font-bold text-slate-800 font-heading">
+              🕸️ แผนภูมิใยแมงมุมสมรรถนะ (Competency Radar Chart)
+            </h4>
+            <span class="text-xs text-slate-400">เปรียบเทียบกับเกณฑ์ 2567</span>
+          </div>
+          <div class="chart-container w-full aspect-square max-h-[380px] flex items-center justify-center">
+            <canvas id="radarChart"></canvas>
+          </div>
+          <p class="text-xs text-slate-400 mt-4 text-center">
+            เส้นสีน้ำเงินคือผลการประเมินของผู้เรียน | เส้นประสีเขียวคือเกณฑ์มาตรฐาน สอศ.
+          </p>
+        </div>
+
+        <!-- Bar Chart Card -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div class="w-full flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+            <h4 class="text-base font-bold text-slate-800 font-heading">
+              📊 คะแนนเฉลี่ยร้อยละแยกตาม 4 มิติ
+            </h4>
+            <span class="text-xs text-slate-400">มาตรฐานคุณวุฒิอาชีวะ</span>
+          </div>
+          <div class="chart-container w-full aspect-[4/3] max-h-[320px] flex items-center justify-center">
+            <canvas id="barChart"></canvas>
+          </div>
+
+          <!-- Dimension Micro-Progress Bars -->
+          <div class="mt-4 space-y-3 text-xs pt-4 border-t border-slate-100">
+            <div class="flex items-center justify-between">
+              <span class="font-medium text-slate-600">มิติ 1: คุณธรรม/จริยธรรม/วินัย</span>
+              <span id="dashDimScore_ethics" class="font-bold font-mono">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div id="dashDimBar_ethics" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="font-medium text-slate-600">มิติ 2: ความรู้/ทฤษฎีประยุกต์/AI</span>
+              <span id="dashDimScore_knowledge" class="font-bold font-mono">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div id="dashDimBar_knowledge" class="bg-emerald-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="font-medium text-slate-600">มิติ 3: ทักษะช่าง/เครื่องมือ/ภาษา</span>
+              <span id="dashDimScore_skills" class="font-bold font-mono">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div id="dashDimBar_skills" class="bg-amber-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="font-medium text-slate-600">มิติ 4: การประยุกต์/ความปลอดภัย/ทวิภาคี</span>
+              <span id="dashDimScore_autonomy" class="font-bold font-mono">0%</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2">
+              <div id="dashDimBar_autonomy" class="bg-purple-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: วิเคราะห์ GAP & คอร์สเสริม ==================== -->
+    <section id="gapAnalysisTab" class="tab-pane">
+      <div class="mb-6">
+        <h2 class="text-lg font-bold text-slate-800 font-heading">
+          การวิเคราะห์ช่องว่างสมรรถนะและแผนที่การพัฒนาทักษะ (Competency Gap & Upskill Roadmap)
+        </h2>
+        <p class="text-xs text-slate-500">
+          ระบบระบุตัวชี้วัดที่เป็นจุดแข็งโดดเด่น และตัวชี้วัดที่จำเป็นต้องได้รับการพัฒนาพร้อมคอร์สเสริมความพร้อมสู่อาชีพ
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Top Strengths -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+            <span class="text-xl">🌟</span>
+            <h3 class="text-base font-bold text-emerald-800 font-heading">
+              จุดเด่นและสมรรถนะระดับสูง (Top Key Strengths)
+            </h3>
+          </div>
+          <div id="strengthsList" class="space-y-3">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Areas for Improvement with Remedial Courses -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
+            <span class="text-xl">🎯</span>
+            <h3 class="text-base font-bold text-amber-800 font-heading">
+              จุดที่ควรพัฒนาและคอร์สอัปสกิลแนะนำ (Remedial Roadmap)
+            </h3>
+          </div>
+          <div id="improvementsList" class="space-y-3">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: ใบรับรองความพร้อมสู่อาชีพ (A4 PASSPORT) ==================== -->
+    <section id="passportTab" class="tab-pane">
+      
+      <div class="flex items-center justify-between mb-4 no-print">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800 font-heading">
+            เอกสารรับรองความพร้อมสู่การทำงาน (Vocational Work Readiness Passport)
+          </h2>
+          <p class="text-xs text-slate-500">
+            เอกสารรายงานผลอย่างเป็นทางการ สามารถสั่งพิมพ์บนกระดาษ A4 หรือบันทึกเป็น PDF เพื่อแนบสมัครฝึกงาน/สหกิจศึกษา
+          </p>
+        </div>
+        <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-semibold text-xs flex items-center gap-2 shadow-md">
+          🖨️ สั่งพิมพ์เอกสาร A4 / บันทึกเป็น PDF
+        </button>
+      </div>
+
+      <!-- Printable Document Container (Styled as Official Certificate) -->
+      <div class="passport-border p-8 sm:p-12 rounded-2xl max-w-4xl mx-auto shadow-xl relative overflow-hidden bg-white">
+        
+        <div class="passport-watermark">สอศ. 2567</div>
+
+        <!-- Certificate Header -->
+        <div class="text-center pb-6 border-b-2 border-blue-950 mb-6">
+          <div class="inline-block p-2 rounded-full bg-blue-50 border border-blue-200 mb-2">
+            <span class="text-3xl">🏛️</span>
+          </div>
+          <h3 class="text-xl sm:text-2xl font-bold font-heading text-blue-950 uppercase tracking-tight">
+            เอกสารรับรองผลการประเมินการเตรียมความพร้อมผู้เรียนอาชีวศึกษา
+          </h3>
+          <p class="text-sm font-semibold text-slate-700 mt-1">
+            VOCATIONAL STUDENT WORK READINESS PASSPORT (V-WRS 2567)
+          </p>
+          <p class="text-xs text-slate-500 mt-0.5">
+            ตามเกณฑ์มาตรฐานคุณวุฒิอาชีวศึกษาแห่งชาติ สำนักงานคณะกรรมการการอาชีวศึกษา (สอศ.)
+          </p>
+        </div>
+
+        <!-- Candidate Bio Details -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-y-3 gap-x-6 text-xs text-slate-700 mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+          <div>
+            <span class="text-slate-400 block">ชื่อ-นามสกุล:</span>
+            <strong class="text-sm text-slate-900" id="passStudentName">-</strong>
+          </div>
+          <div>
+            <span class="text-slate-400 block">รหัสประจำตัวผู้เรียน:</span>
+            <strong class="text-sm font-mono text-slate-900" id="passStudentId">-</strong>
+          </div>
+          <div>
+            <span class="text-slate-400 block">ระดับการศึกษา:</span>
+            <strong class="text-slate-900" id="passLevel">-</strong>
+          </div>
+          <div>
+            <span class="text-slate-400 block">สาขาวิชา:</span>
+            <strong class="text-slate-900" id="passMajor">-</strong>
+          </div>
+          <div>
+            <span class="text-slate-400 block">สถานศึกษา:</span>
+            <strong class="text-slate-900" id="passCollege">-</strong>
+          </div>
+          <div>
+            <span class="text-slate-400 block">วันที่ทำการประเมิน:</span>
+            <strong class="text-slate-900" id="passDate">-</strong>
+          </div>
+        </div>
+
+        <!-- Score Summary Row -->
+        <div class="grid grid-cols-3 gap-4 text-center mb-6">
+          <div class="p-4 rounded-xl bg-blue-50 border border-blue-100">
+            <span class="text-xs text-blue-600 block font-medium">คะแนนเฉลี่ยรวม (1-5)</span>
+            <span class="text-2xl font-extrabold font-mono text-blue-950" id="passScore">0.00</span>
+          </div>
+          <div class="p-4 rounded-xl bg-indigo-50 border border-indigo-100">
+            <span class="text-xs text-indigo-600 block font-medium">คิดเป็นร้อยละ</span>
+            <span class="text-2xl font-extrabold font-mono text-indigo-950" id="passPct">0%</span>
+          </div>
+          <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100 flex flex-col items-center justify-center">
+            <span class="text-xs text-emerald-700 block font-medium mb-1">ระดับความพร้อมสู่การทำงาน</span>
+            <span id="passTierBadge" class="px-2.5 py-1 text-xs font-bold rounded-full border">กำลังประเมิน</span>
+          </div>
+        </div>
+
+        <div class="mb-6 p-3 rounded-lg bg-slate-100 border border-slate-200 text-xs text-slate-800 text-center">
+          <span class="font-bold">ผลการวินิจฉัยความพร้อม:</span> <span id="passVerdict">-</span>
+        </div>
+
+        <!-- Competency Breakdown Table -->
+        <div class="overflow-x-auto mb-8">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-blue-900 text-white">
+              <tr>
+                <th class="py-2.5 px-3 rounded-l-lg font-semibold">มิติสมรรถนะตามหลักสูตร 2567</th>
+                <th class="py-2.5 px-3 text-center font-semibold">คะแนนเฉลี่ย (เต็ม 5)</th>
+                <th class="py-2.5 px-3 text-center font-semibold">ร้อยละ (%)</th>
+                <th class="py-2.5 px-3 rounded-r-lg text-center font-semibold">ผลการประเมิน</th>
+              </tr>
+            </thead>
+            <tbody id="passTableBody" class="divide-y divide-slate-100">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Signatures & Seal Section -->
+        <div class="grid grid-cols-3 gap-6 pt-6 border-t border-slate-200 text-center text-xs text-slate-700">
+          <div>
+            <div class="h-14 border-b border-dashed border-slate-400 mx-auto w-3/4 mb-1"></div>
+            <p class="font-semibold">(........................................................)</p>
+            <p class="text-slate-500 mt-0.5">ผู้เรียน / ผู้รับการประเมิน</p>
+          </div>
+          <div>
+            <div class="official-seal">
+              <span>สอศ.</span>
+              <span>2567</span>
+              <span>V-WRS</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">ตราประทับรับรอง</p>
+          </div>
+          <div>
+            <div class="h-14 border-b border-dashed border-slate-400 mx-auto w-3/4 mb-1"></div>
+            <p class="font-semibold">(........................................................)</p>
+            <p class="text-slate-500 mt-0.5">ครูนิเทศก์ / หัวหน้างานอาชีวศึกษาระบบทวิภาคี</p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:flex sm:justify-between sm:items-center">
+      <p>ระบบประเมินการเตรียมความพร้อมผู้เรียนอาชีวศึกษา (V-WRS) | อิงหลักสูตร ปวช./ปวส. พ.ศ. 2567 สำนักงานคณะกรรมการการอาชีวศึกษา (สอศ.)</p>
+      <p class="mt-2 sm:mt-0 text-slate-500">พร้อมใช้งานบน GitHub และ Vercel (Zero Config Deployment)</p>
+    </div>
+  </footer>
+
+  <!-- Core Scripts -->
+  <script src="js/curriculum-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

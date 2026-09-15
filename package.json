@@ -1,0 +1,11 @@
+{
+  "name": "vocational-work-readiness-system",
+  "version": "1.0.0",
+  "description": "ระบบประเมินการเตรียมความพร้อมผู้เรียนอาชีวศึกษา ตามหลักสูตร ปวช./ปวส. พ.ศ. 2567 (Vocational Student Work Readiness System)",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": ["vocational", "education", "assessment", "readiness", "thailand", "obec", "ovec", "pvc", "dve"],
+  "author": "OVEC Competency Project",
+  "license": "MIT"
+}
